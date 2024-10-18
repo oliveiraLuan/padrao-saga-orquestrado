@@ -40,4 +40,4 @@ if __name__ == "__main__":
     while len(threads) > 0:
         pass
     removing_remaining_containers()
-    threading.Thread(target=docker_compose_up()).start()
+    threading.Thread(target=docker_compose_up).start()
