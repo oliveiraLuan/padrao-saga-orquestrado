@@ -1,0 +1,10 @@
+server:
+  port: 8092
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    topic:
+      inventory-success: inventory-success
+      inventory-fail: inventory-fail
+      orchestrator: orchestrator
