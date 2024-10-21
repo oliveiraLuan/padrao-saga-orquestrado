@@ -1,0 +1,9 @@
+server:
+  port: 3000
+
+spring:
+  data:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    topic:
+      start-saga: start-saga
+      notify-ending: notify-ending
