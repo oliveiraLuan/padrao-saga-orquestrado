@@ -1,0 +1,10 @@
+server:
+  port: 8090
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    topic:
+      product-validation-sucess: product-validation-sucess
+      product-validation-fail: product-validation-fail
+      orchestrator: orchestrator
