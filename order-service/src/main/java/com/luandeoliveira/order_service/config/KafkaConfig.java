@@ -32,6 +32,9 @@ public class KafkaConfig {
     @Value("${spring.data.topic.notify-ending}")
     private String notifyEndingTopic;
 
+    private static final Integer PARTITIONS_QUANTITY = 1;
+    private static final Integer REPLICAS_QUANTITY = 1;
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerProps());
@@ -67,7 +70,11 @@ public class KafkaConfig {
 
     @Bean
     private NewTopic buildTopic(String name){
-        return TopicBuilder.name(name).build();
+        return TopicBuilder
+                .name(name)
+                .replicas(REPLICAS_QUANTITY)
+                .partitions(PARTITIONS_QUANTITY)
+                .build();
     }
 
     @Bean
