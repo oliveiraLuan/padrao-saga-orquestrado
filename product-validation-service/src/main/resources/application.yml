@@ -5,6 +5,6 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
     topic:
-      product-validation-sucess: product-validation-sucess
+      product-validation-success: product-validation-success
       product-validation-fail: product-validation-fail
       orchestrator: orchestrator
