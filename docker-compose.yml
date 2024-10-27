@@ -68,6 +68,20 @@ services:
     volumes:
       - ./data/kafka/data:/var/lib/kafka/data
 
+  order-service:
+    build: './order-service'
+    container_name: order-service
+    depends_on:
+      - kafka
+      - order-db
+    networks:
+      - orchestrator-saga
+    environment:
+      - KAFKA_BROKER=kafka:29092
+      - MONGO_DB_URI=mongodb://admin:123456@order-db:27017
+    ports:
+      - 3000:3000
+
   redpanda-console:
     container_name: redpanda
     image: docker.redpanda.com/vectorized/console:latest
