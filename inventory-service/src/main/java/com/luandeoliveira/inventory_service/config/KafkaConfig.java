@@ -70,7 +70,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
     private NewTopic buildTopic(String name){
         return TopicBuilder
                 .name(name)

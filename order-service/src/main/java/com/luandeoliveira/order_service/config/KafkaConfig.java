@@ -68,7 +68,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
     private NewTopic buildTopic(String name){
         return TopicBuilder
                 .name(name)
@@ -78,11 +77,11 @@ public class KafkaConfig {
     }
 
     @Bean
-    private NewTopic startSaga(){
+    public NewTopic startSaga(){
         return buildTopic(startSagaTopic);
     }
     @Bean
-    private NewTopic notifyEnding(){
+    public NewTopic notifyEnding(){
         return buildTopic(notifyEndingTopic);
     }
 }

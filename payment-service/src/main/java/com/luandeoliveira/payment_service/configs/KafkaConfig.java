@@ -69,8 +69,6 @@ public class KafkaConfig {
     KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory){
         return new KafkaTemplate<>(producerFactory);
     }
-
-    @Bean
     private NewTopic buildTopic(String name){
         return TopicBuilder
                 .name(name)
@@ -80,16 +78,16 @@ public class KafkaConfig {
     }
 
     @Bean
-    private NewTopic orchestrator(){
+    public NewTopic orchestrator(){
         return buildTopic(orchestrator);
     }
 
     @Bean
-    private NewTopic paymentSuccess(){
+    public NewTopic paymentSuccess(){
         return buildTopic(paymentSuccess);
     }
     @Bean
-    private NewTopic paymentFail(){
+    public NewTopic paymentFail(){
         return buildTopic(paymentFail);
     }
 }

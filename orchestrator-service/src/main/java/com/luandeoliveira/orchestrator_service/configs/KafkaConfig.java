@@ -22,11 +22,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaConfig {
 
-    @Value("${spring.data.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${spring.data.consumer.group-id}")
+    @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
-    @Value("${spring.data.consumer.auto-offset-reset}")
+    @Value("${spring.kafka.consumer.auto-offset-reset}")
     private String autoOffReset;
 
     private static final Integer PARTITIONS_QUANTITY = 1;
@@ -65,7 +65,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
     private NewTopic buildTopic(String name){
         return TopicBuilder
                 .name(name)
@@ -75,47 +74,47 @@ public class KafkaConfig {
     }
 
     @Bean
-    private NewTopic startSaga(){
+    public NewTopic startSaga(){
         return buildTopic(Topics.START_SAGA.getTopic());
     }
     @Bean
-    private NewTopic notifyEnding(){
+    public NewTopic notifyEnding(){
         return buildTopic(Topics.NOTIFY_ENDING.getTopic());
     }
     @Bean
-    private NewTopic orchestrator(){
+    public NewTopic orchestrator(){
         return buildTopic(Topics.BASE_ORCHESTRATOR.getTopic());
     }
     @Bean
-    private NewTopic finishSuccess(){
+    public NewTopic finishSuccess(){
         return buildTopic(Topics.FINISH_SUCCESS.getTopic());
     }
     @Bean
-    private NewTopic finishFail(){
+    public NewTopic finishFail(){
         return buildTopic(Topics.FINISH_FAIL.getTopic());
     }
     @Bean
-    private NewTopic productValidationSuccess(){
+    public NewTopic productValidationSuccess(){
         return buildTopic(Topics.PRODUCT_VALIDATION_SUCCESS.getTopic());
     }
     @Bean
-    private NewTopic productValidationFail(){
+    public NewTopic productValidationFail(){
         return buildTopic(Topics.PRODUCT_VALIDATION_FAIL.getTopic());
     }
     @Bean
-    private NewTopic paymentSuccess(){
+    public NewTopic paymentSuccess(){
         return buildTopic(Topics.PAYMENT_SUCCESS.getTopic());
     }
     @Bean
-    private NewTopic paymentFail(){
+    public NewTopic paymentFail(){
         return buildTopic(Topics.PAYMENT_FAIL.getTopic());
     }
     @Bean
-    private NewTopic inventorySuccess(){
+    public NewTopic inventorySuccess(){
         return buildTopic(Topics.INVENTORY_SUCCESS.getTopic());
     }
     @Bean
-    private NewTopic inventoryFail(){
+    public NewTopic inventoryFail(){
         return buildTopic(Topics.INVENTORY_FAIL.getTopic());
     }
 }

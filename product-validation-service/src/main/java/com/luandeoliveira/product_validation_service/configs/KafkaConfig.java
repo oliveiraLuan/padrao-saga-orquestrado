@@ -70,7 +70,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory);
     }
 
-    @Bean
     private NewTopic buildTopic(String name){
         return TopicBuilder
                 .name(name)
@@ -80,16 +79,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    private NewTopic orchestrator(){
+    public NewTopic orchestrator(){
         return buildTopic(orchestrator);
     }
-
     @Bean
-    private NewTopic productVaidationFail(){
+    public NewTopic productVaidationFail(){
         return buildTopic(productValidationSuccess);
     }
     @Bean
-    private NewTopic productValidationFail(){
+    public NewTopic productValidationFail(){
         return buildTopic(productValidationFail);
     }
 }
