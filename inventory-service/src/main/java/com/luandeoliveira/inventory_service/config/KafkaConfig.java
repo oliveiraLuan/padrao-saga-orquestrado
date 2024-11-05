@@ -21,18 +21,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaConfig {
 
-    @Value("${spring.data.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${spring.data.consumer.group-id}")
+    @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
-    @Value("${spring.data.consumer.auto-offset-reset}")
+    @Value("${spring.kafka.consumer.auto-offset-reset}")
     private String autoOffReset;
     @Value("${spring.kafka.topic.inventory-success}")
-    private String inventorySuccess;
+    private String inventorySuccessTopic;
     @Value("${spring.kafka.topic.inventory-fail}")
-    private String inventoryFail;
+    private String inventoryFailTopic;
     @Value("${spring.kafka.topic.orchestrator}")
-    private String orchestrator;
+    private String orchestratorTopic;
 
     private static final Integer PARTITIONS_QUANTITY = 1;
     private static final Integer REPLICAS_QUANTITY = 1;
@@ -66,7 +66,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory){
+    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory){
         return new KafkaTemplate<>(producerFactory);
     }
 
@@ -79,16 +79,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    private NewTopic orchestrator(){
-        return buildTopic(orchestrator);
-    }
-
-    @Bean
-    private NewTopic inventorySuccess(){
-        return buildTopic(inventorySuccess);
+    public NewTopic orchestrator(){
+        return buildTopic(orchestratorTopic);
     }
     @Bean
-    private NewTopic inventoryFail(){
-        return buildTopic(inventoryFail);
+    public NewTopic inventorySuccess(){
+        return buildTopic(inventorySuccessTopic);
+    }
+    @Bean
+    public NewTopic inventoryFail(){
+        return buildTopic(inventoryFailTopic);
     }
 }
