@@ -9,7 +9,7 @@ spring:
       inventory-fail: inventory-fail
       orchestrator: orchestrator
     consumer:
-      group-id: payment-group
+      group-id: inventory-group
       auto-offset-reset: latest
   datasource:
     driver-class-name: org.postgresql.Driver
