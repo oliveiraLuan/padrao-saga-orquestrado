@@ -21,15 +21,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaConfig {
 
-    @Value("${spring.data.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${spring.data.consumer.group-id}")
+    @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
-    @Value("${spring.data.consumer.auto-offset-reset}")
+    @Value("${spring.kafka.consumer.auto-offset-reset}")
     private String autoOffReset;
-    @Value("${spring.data.topic.payment-success}")
+    @Value("${spring.kafka.topic.payment-success}")
     private String paymentSuccess;
-    @Value("${spring.data.topic.payment-fail}")
+    @Value("${spring.kafka.topic.payment-fail}")
     private String paymentFail;
     @Value("${spring.kafka.topic.orchestrator}")
     private String orchestrator;
