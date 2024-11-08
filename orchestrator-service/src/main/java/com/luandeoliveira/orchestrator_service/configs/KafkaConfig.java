@@ -1,6 +1,6 @@
 package com.luandeoliveira.orchestrator_service.configs;
 
-import com.luandeoliveira.orchestrator_service.enums.Topics;
+import com.luandeoliveira.orchestrator_service.core.enums.Topics;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

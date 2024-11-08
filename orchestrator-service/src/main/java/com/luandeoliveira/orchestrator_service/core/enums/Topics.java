@@ -1,4 +1,4 @@
-package com.luandeoliveira.orchestrator_service.enums;
+package com.luandeoliveira.orchestrator_service.core.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
