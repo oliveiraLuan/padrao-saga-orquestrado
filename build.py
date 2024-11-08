@@ -32,7 +32,7 @@ def removing_remaining_containers():
         print("Ainda há {} containers criado".format(containers))
         for container in containers:
             print("Finalizando container {}".format(container))
-                os.system("docker container stop {}".format(container))
+            os.system("docker container stop {}".format(container))
             os.system("docker container prune -f")
 if __name__ == "__main__":
     print("Pipeline iniciada!")
