@@ -1,7 +1,10 @@
 package com.luandeoliveira.product_validation_service.service;
 
 import com.luandeoliveira.product_validation_service.core.dto.Event;
-import com.luandeoliveira.product_validation_service.core.dto.OrderProducts;
+import com.luandeoliveira.product_validation_service.core.dto.History;
+import com.luandeoliveira.product_validation_service.core.enums.EventSource;
+import com.luandeoliveira.product_validation_service.core.enums.SagaStatus;
+import com.luandeoliveira.product_validation_service.core.model.Validation;
 import com.luandeoliveira.product_validation_service.core.producer.KafkaProducer;
 import com.luandeoliveira.product_validation_service.core.repository.ProductRepository;
 import com.luandeoliveira.product_validation_service.core.repository.ValidationRepository;
@@ -11,6 +14,8 @@ import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -31,6 +36,8 @@ public class ProductValidationService {
     public void validateExistingProducts(Event event){
         try {
             checkCurrentValidation(event);
+            createValidation(event, true);
+
         } catch (Exception e){
           log.error("Falha ao validar o evento", e.getMessage());
         }
@@ -38,6 +45,9 @@ public class ProductValidationService {
     }
 
     private void validateProductsInformed(Event event){
+        if(isEmpty(event.getPayload()) || isEmpty(event.getPayload().getProducts())){
+            throw new ValidationException("Lista de produtos vazia.");
+        }
         if(isEmpty(event.getPayload().getId()) || isEmpty(event.getTransactionId())){
             throw new ValidationException("OrderId e TransactionId precisam ser informados.");
         }
@@ -60,5 +70,31 @@ public class ProductValidationService {
         if(productRepository.existsByCode(code)){
             throw new ValidationException("Não existe produto com id informado");
         }
+    }
+
+    private void createValidation(Event event, Boolean success){
+        var validation = Validation
+                .builder()
+                .createdAt(LocalDateTime.now())
+                .orderId(event.getId())
+                .transactionId(event.getTransactionId())
+                .success(success)
+                .build();
+        validationRepository.save(validation);
+    }
+    public void handleSuccess(Event event){
+        event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
+        event.setStatus(SagaStatus.SUCCESS);
+        addHistory(event, "Produtos validados com sucesso!");
+    }
+    public void addHistory(Event event, String message){
+        History history = History
+                .builder()
+                .createdAt(LocalDateTime.now())
+                .source(event.getSource())
+                .status(event.getStatus())
+                .message(message)
+                .build();
+        event.addHistory(history);
     }
 }
