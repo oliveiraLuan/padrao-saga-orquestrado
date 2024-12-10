@@ -37,9 +37,10 @@ public class ProductValidationService {
         try {
             checkCurrentValidation(event);
             createValidation(event, true);
-
+            handleSuccess(event);
         } catch (Exception e){
-          log.error("Falha ao validar o evento", e.getMessage());
+          log.error("Falha ao validar o evento", e);
+          handleFail(event, e.getMessage());
         }
         kafkaProducer.sendEvent(jsonUtil.toJson(event));
     }
@@ -87,6 +88,13 @@ public class ProductValidationService {
         event.setStatus(SagaStatus.SUCCESS);
         addHistory(event, "Produtos validados com sucesso!");
     }
+
+    private void handleFail(Event event, String message){
+        event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
+        event.setStatus(SagaStatus.ROLLBACK_PENDING);
+        addHistory(event, "Falha ao validar produtos! ".concat(message));
+    }
+
     public void addHistory(Event event, String message){
         History history = History
                 .builder()
