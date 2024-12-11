@@ -95,6 +95,13 @@ public class ProductValidationService {
         addHistory(event, "Falha ao validar produtos! ".concat(message));
     }
 
+    private void rollbackEvent(Event event){
+        event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
+        event.setStatus(SagaStatus.FAIL);
+        addHistory(event, "Rollback na validação de produto.");
+        kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
     public void addHistory(Event event, String message){
         History history = History
                 .builder()
