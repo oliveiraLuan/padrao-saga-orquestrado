@@ -84,6 +84,7 @@ public class ProductValidationService {
         validationRepository.save(validation);
     }
     public void handleSuccess(Event event){
+        changeValidationToFail(event);
         event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
         event.setStatus(SagaStatus.SUCCESS);
         addHistory(event, "Produtos validados com sucesso!");
@@ -93,6 +94,18 @@ public class ProductValidationService {
         event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
         event.setStatus(SagaStatus.ROLLBACK_PENDING);
         addHistory(event, "Falha ao validar produtos! ".concat(message));
+    }
+
+    private void changeValidationToFail(Event event){
+        validationRepository.findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId())
+                .ifPresentOrElse(
+                        validation -> {
+                            validation.setSuccess(false);
+                            validationRepository.save(validation)
+                        },
+                        () -> createValidation(event, false)
+                );
+
     }
 
     private void rollbackEvent(Event event){
