@@ -101,7 +101,7 @@ public class ProductValidationService {
                 .ifPresentOrElse(
                         validation -> {
                             validation.setSuccess(false);
-                            validationRepository.save(validation)
+                            validationRepository.save(validation);
                         },
                         () -> createValidation(event, false)
                 );
