@@ -56,7 +56,7 @@ public class ProductValidationService {
 
     private void checkCurrentValidation(Event event){
         validateProductsInformed(event);
-        if(validationRepository.existsByOrderByOrderIdAndTransactionId(event.getOrderId(), event.getTransactionId())){
+        if(validationRepository.existsByOrderIdAndTransactionId(event.getOrderId(), event.getTransactionId())){
             throw new ValidationException("Já existe outra validação com este OrderId e TransactionId");
         }
         event.getPayload().getProducts().forEach(product -> {
