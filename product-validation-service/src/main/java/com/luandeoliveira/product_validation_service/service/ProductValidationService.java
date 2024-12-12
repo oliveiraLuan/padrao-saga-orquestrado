@@ -108,7 +108,7 @@ public class ProductValidationService {
 
     }
 
-    private void rollbackEvent(Event event){
+    public void rollbackEvent(Event event){
         event.setSource(EventSource.PRODUCT_VALIDATION_SERVICE);
         event.setStatus(SagaStatus.FAIL);
         addHistory(event, "Rollback na validação de produto.");
