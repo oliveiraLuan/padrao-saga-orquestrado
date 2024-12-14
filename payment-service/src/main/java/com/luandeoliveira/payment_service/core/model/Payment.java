@@ -28,6 +28,7 @@ public class Payment {
     @Column(nullable = false)
     private double totalAmount;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private EPaymentStatus status;
     @Column(nullable = false)
     private boolean success;
