@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderProducts {
-    private String id;
-    private List<Product> products;
+    private Product product;
+    private int quantity;
 }
