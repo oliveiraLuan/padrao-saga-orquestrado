@@ -105,7 +105,6 @@ public class ProductValidationService {
                         },
                         () -> createValidation(event, false)
                 );
-
     }
 
     public void rollbackEvent(Event event){

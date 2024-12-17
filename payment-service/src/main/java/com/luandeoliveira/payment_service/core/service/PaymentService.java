@@ -1,7 +1,10 @@
 package com.luandeoliveira.payment_service.core.service;
 
 import com.luandeoliveira.payment_service.core.dto.Event;
+import com.luandeoliveira.payment_service.core.dto.History;
 import com.luandeoliveira.payment_service.core.dto.OrderProducts;
+import com.luandeoliveira.payment_service.core.enums.EventSource;
+import com.luandeoliveira.payment_service.core.enums.SagaStatus;
 import com.luandeoliveira.payment_service.core.model.Payment;
 import com.luandeoliveira.payment_service.core.producer.KafkaProducer;
 import com.luandeoliveira.payment_service.core.repository.PaymentRepository;
@@ -10,6 +13,8 @@ import com.luandeoliveira.payment_service.exceptions.ValidationException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -20,6 +25,7 @@ public class PaymentService {
 
     private final String CURRENT_SOURCE = "PAYMENT-SERVICE";
     private final Double REDUCE_SUM_VALUE = 0.0;
+    private final Double MIN_AMOUNT_VALUE = 0.1;
 
     private final JsonUtil jsonUtil;
     private final KafkaProducer kafkaProducer;
@@ -29,11 +35,32 @@ public class PaymentService {
             checkValidation(event);
             createPendingPayment(event);
             var payment = findByOrderIdAndTransactionId(event);
+            validatePayment(payment);
+            handleSuccess(event);
+
         }catch (Exception e){
             log.error("Erro ao tentar realizar pagamento.", e);
         }
         kafkaProducer.sendEvent(jsonUtil.toJson(event));
     }
+
+    public void handleSuccess(Event event){
+        event.setSource(EventSource.PAYMENT_SERVICE);
+        event.setStatus(SagaStatus.SUCCESS);
+        addHistory(event, "Produtos validados com sucesso!");
+    }
+
+    public void addHistory(Event event, String message){
+        History history = History
+                .builder()
+                .createdAt(LocalDateTime.now())
+                .source(event.getSource())
+                .status(event.getStatus())
+                .message(message)
+                .build();
+        event.addHistory(history);
+    }
+
     private void checkValidation(Event event){
         if(paymentRepository.existsByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId()))
             throw new ValidationException("Erro de validação do pagamento, já existe pagamento com este transactionId.");
@@ -53,9 +80,14 @@ public class PaymentService {
     }
 
     private Payment findByOrderIdAndTransactionId(Event event){
-        return paymentRepository.
-                findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId()).
+        return paymentRepository
+                .findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId()).
                 orElseThrow(() ->  new ValidationException("Pagamento com orderId e transactionId informado não encontrado."));
+    }
+
+    public void validatePayment(Payment payment){
+        if(payment.getTotalAmount() < MIN_AMOUNT_VALUE)
+            throw new ValidationException("Valor do pagamento abaixo do mínimo de".concat(MIN_AMOUNT_VALUE.toString()));
     }
 
     private void save(Payment payment){
