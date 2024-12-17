@@ -28,6 +28,7 @@ public class PaymentService {
         try {
             checkValidation(event);
             createPendingPayment(event);
+            var payment = findByOrderIdAndTransactionId(event);
         }catch (Exception e){
             log.error("Erro ao tentar realizar pagamento.", e);
         }
@@ -49,6 +50,12 @@ public class PaymentService {
                 .build();
         save(payment);
         setEventAmountItems(event, payment);
+    }
+
+    private Payment findByOrderIdAndTransactionId(Event event){
+        return paymentRepository.
+                findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId()).
+                orElseThrow(() ->  new ValidationException("Pagamento com orderId e transactionId informado não encontrado."));
     }
 
     private void save(Payment payment){
