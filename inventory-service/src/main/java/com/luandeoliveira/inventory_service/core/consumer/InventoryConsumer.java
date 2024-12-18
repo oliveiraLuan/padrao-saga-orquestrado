@@ -15,7 +15,7 @@ public class InventoryConsumer {
 
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
-            topics = "${spring.kafka.inventory-success}"
+            topics = "${spring.kafka.topic.inventory-success}"
     )
     public void consumeSuccessEvent(String payload){
         log.info("Consumindo evento do tópico inventory-success com payload: {}", payload);

@@ -18,7 +18,7 @@ public class PaymentConsumer {
 
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
-            topics = "${spring.kafka.payment-success}"
+            topics = "${spring.kafka.topic.payment-success}"
     )
     public void consumeSuccessEvent(String payload){
         log.info("Consumindo evento do tópico payment-success com payload: {}", payload);
