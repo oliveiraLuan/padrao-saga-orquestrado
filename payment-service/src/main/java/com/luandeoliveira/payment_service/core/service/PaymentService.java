@@ -3,6 +3,7 @@ package com.luandeoliveira.payment_service.core.service;
 import com.luandeoliveira.payment_service.core.dto.Event;
 import com.luandeoliveira.payment_service.core.dto.History;
 import com.luandeoliveira.payment_service.core.dto.OrderProducts;
+import com.luandeoliveira.payment_service.core.enums.EPaymentStatus;
 import com.luandeoliveira.payment_service.core.enums.EventSource;
 import com.luandeoliveira.payment_service.core.enums.SagaStatus;
 import com.luandeoliveira.payment_service.core.model.Payment;
@@ -23,7 +24,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    private final String CURRENT_SOURCE = "PAYMENT-SERVICE";
+    private static final String CURRENT_SOURCE = "PAYMENT-SERVICE";
     private final Double REDUCE_SUM_VALUE = 0.0;
     private final Double MIN_AMOUNT_VALUE = 0.1;
 
@@ -37,11 +38,31 @@ public class PaymentService {
             var payment = findByOrderIdAndTransactionId(event);
             validatePayment(payment);
             handleSuccess(event);
-
         }catch (Exception e){
             log.error("Erro ao tentar realizar pagamento.", e);
+            handleFail(event, e.getMessage());
         }
         kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
+    public void realizeRefund(Event event){
+        event.setStatus(SagaStatus.FAIL);
+        event.setSource(EventSource.PAYMENT_SERVICE);
+        try {
+            changeStatusToRefund(event);
+            addHistory(event,"Rollback executado para o pagamento!");
+        } catch (Exception ex){
+            changeStatusToRefund(event);
+            addHistory(event,"Rollback não executado para o pagamento!".concat(ex.getMessage()));
+        }
+        kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
+    private void changeStatusToRefund(Event event){
+       var payment = findByOrderIdAndTransactionId(event);
+       payment.setStatus(EPaymentStatus.REFUND);
+       setEventAmountItems(event, payment);
+       save(payment);
     }
 
     public void handleSuccess(Event event){
@@ -81,8 +102,8 @@ public class PaymentService {
 
     private Payment findByOrderIdAndTransactionId(Event event){
         return paymentRepository
-                .findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId()).
-                orElseThrow(() ->  new ValidationException("Pagamento com orderId e transactionId informado não encontrado."));
+                .findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId())
+                        .orElseThrow(() ->  new ValidationException("Pagamento com orderId e transactionId informado não encontrado."));
     }
 
     public void validatePayment(Payment payment){
@@ -115,5 +136,10 @@ public class PaymentService {
                 .stream()
                 .map(OrderProducts::getQuantity)
                 .reduce(REDUCE_SUM_VALUE.intValue(), Integer::sum);
+    }
+    private void handleFail(Event event, String message){
+        event.setSource(EventSource.PAYMENT_SERVICE);
+        event.setStatus(SagaStatus.ROLLBACK_PENDING);
+        addHistory(event, "Falha ao validar pagamento! ".concat(message));
     }
 }
