@@ -20,7 +20,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
     private final SagaProducer sagaProducer;
     private final JsonUtil jsonUtil;
 
@@ -47,7 +47,7 @@ public class OrderService {
                 .payload(order)
                 .transactionId(order.getTransactionId())
                 .build();
-        eventRepository.save(event);
+        eventService.save(event);
         return event;
     }
 
