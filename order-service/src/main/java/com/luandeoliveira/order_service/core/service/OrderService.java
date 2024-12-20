@@ -24,10 +24,10 @@ public class OrderService {
     private final SagaProducer sagaProducer;
     private final JsonUtil jsonUtil;
 
-    private String TRANSACATION_ID_PATTERN = "%s_%s";
+    private static final String TRANSACATION_ID_PATTERN = "%s_%s";
 
     public Order createOrder(OrderRequest orderRequest){
-        Order order = Order
+        var order = Order
                 .builder()
                 .products(orderRequest.getProducts())
                 .createdAt(LocalDateTime.now())
@@ -40,7 +40,7 @@ public class OrderService {
     }
 
     public Event createPayload(Order order){
-        Event event = Event
+        var event = Event
                 .builder()
                 .orderId(order.getId())
                 .createdAt(LocalDateTime.now())
