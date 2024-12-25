@@ -1,6 +1,8 @@
 package com.luandeoliveira.inventory_service.core.service;
 
 import com.luandeoliveira.inventory_service.core.dto.Event;
+import com.luandeoliveira.inventory_service.core.dto.History;
+import com.luandeoliveira.inventory_service.core.dto.Order;
 import com.luandeoliveira.inventory_service.core.dto.OrderProducts;
 import com.luandeoliveira.inventory_service.core.model.Inventory;
 import com.luandeoliveira.inventory_service.core.model.OrderInventory;
@@ -8,10 +10,14 @@ import com.luandeoliveira.inventory_service.core.producer.KafkaProducer;
 import com.luandeoliveira.inventory_service.core.repository.InventoryRepository;
 import com.luandeoliveira.inventory_service.core.repository.OrderInventoryRepository;
 import com.luandeoliveira.inventory_service.core.utils.JsonUtil;
+import com.luandeoliveira.inventory_service.enums.EventSource;
+import com.luandeoliveira.inventory_service.enums.SagaStatus;
 import com.luandeoliveira.inventory_service.exceptions.ValidationException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @AllArgsConstructor
@@ -26,10 +32,45 @@ public class InventoryService {
         try {
             checkCurrentValidation(event);
             createOrderInventory(event);
+            updateInventory(event.getPayload());
+            handleSuccess(event);
         } catch (Exception e){
             log.error("Erro ao tentar atualizar inventário", e);
         }
         kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
+    private void updateInventory(Order order){
+        order.getProducts().forEach(
+                product -> {
+                    var inventory = findInventoryByProductCode(product.getProduct().code());
+                    checkInventory(inventory.getAvailable(), product.getQuantity());
+                    inventory.setAvailable(inventory.getAvailable() - product.getQuantity());
+                    inventoryRepository.save(inventory);
+                }
+        );
+    }
+
+    public void handleSuccess(Event event){
+        event.setSource(EventSource.INVENTORY_SERVICE);
+        event.setStatus(SagaStatus.SUCCESS);
+        addHistory(event, "Inventário validado com sucesso!");
+    }
+
+    public void addHistory(Event event, String message){
+        History history = History
+                .builder()
+                .createdAt(LocalDateTime.now())
+                .source(event.getSource())
+                .status(event.getStatus())
+                .message(message)
+                .build();
+        event.addHistory(history);
+    }
+
+    private void checkInventory(int available, int orderQuantity) {
+        if(available < orderQuantity)
+            throw new ValidationException("Quantidade do pedido maior que o disponível em estoque.");
     }
 
     private void createOrderInventory(Event event) {
