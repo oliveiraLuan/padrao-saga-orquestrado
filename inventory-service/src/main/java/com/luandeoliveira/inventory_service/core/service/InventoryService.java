@@ -36,8 +36,39 @@ public class InventoryService {
             handleSuccess(event);
         } catch (Exception e){
             log.error("Erro ao tentar atualizar inventário", e);
+            handleFail(event, e.getMessage());
         }
         kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
+    public void rollbackInventory(Event event){
+        event.setStatus(SagaStatus.FAIL);
+        event.setSource(EventSource.INVENTORY_SERVICE);
+        try {
+            rollbackInventoryToPreviousValues(event);
+            addHistory(event,"Rollback executado para o inventário!");
+        } catch (Exception ex){
+            addHistory(event,"Rollback não executado para o inventário!".concat(ex.getMessage()));
+        }
+        kafkaProducer.sendEvent(jsonUtil.toJson(event));
+    }
+
+    private void rollbackInventoryToPreviousValues(Event event){
+        orderInventoryRepository.findByOrderIdAndTransactionId(event.getPayload().getId(), event.getTransactionId())
+                .forEach(
+                        orderInventory -> {
+                            var inventory = orderInventory.getInventory();
+                            inventory.setAvailable(orderInventory.getOldQuantity());
+                            inventoryRepository.save(inventory);
+                            log.info("Inventário com orderId {} atualizado do valor {} para {}", event.getPayload().getId(), orderInventory.getNewQuantity(), inventory.getAvailable());
+                        }
+                );
+    }
+
+    private void handleFail(Event event, String message){
+        event.setSource(EventSource.INVENTORY_SERVICE);
+        event.setStatus(SagaStatus.ROLLBACK_PENDING);
+        addHistory(event, "Falha ao atualizar inventário! ".concat(message));
     }
 
     private void updateInventory(Order order){
