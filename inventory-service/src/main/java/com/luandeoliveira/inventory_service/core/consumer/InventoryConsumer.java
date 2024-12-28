@@ -1,5 +1,6 @@
 package com.luandeoliveira.inventory_service.core.consumer;
 
+import com.luandeoliveira.inventory_service.core.service.InventoryService;
 import com.luandeoliveira.inventory_service.core.utils.JsonUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class InventoryConsumer {
 
+    private final InventoryService inventoryService;
     private final JsonUtil jsonUtil;
 
     @KafkaListener(
@@ -20,7 +22,7 @@ public class InventoryConsumer {
     public void consumeSuccessEvent(String payload){
         log.info("Consumindo evento do tópico inventory-success com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        inventoryService.updateInventory(event);
     }
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -29,6 +31,6 @@ public class InventoryConsumer {
     public void consumeRollbackEvent(String payload){
         log.info("Consumindo evento de rollback do tópico inventory-fail com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        inventoryService.rollbackInventory(event);
     }
 }
