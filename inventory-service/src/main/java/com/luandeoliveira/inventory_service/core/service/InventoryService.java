@@ -82,7 +82,7 @@ public class InventoryService {
         );
     }
 
-    public void handleSuccess(Event event){
+    private void handleSuccess(Event event){
         event.setSource(EventSource.INVENTORY_SERVICE);
         event.setStatus(SagaStatus.SUCCESS);
         addHistory(event, "Inventário validado com sucesso!");
