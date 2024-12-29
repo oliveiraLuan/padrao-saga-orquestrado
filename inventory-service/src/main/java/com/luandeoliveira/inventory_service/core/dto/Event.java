@@ -28,10 +28,9 @@ public class Event {
     private EventSource source;
 
     public void addHistory(History history){
-        if(isEmpty(history)){
+        if(isEmpty(eventHistory)){
             eventHistory = new ArrayList<>();
-        } else {
-            eventHistory.add(history);
         }
+            eventHistory.add(history);
     }
 }
