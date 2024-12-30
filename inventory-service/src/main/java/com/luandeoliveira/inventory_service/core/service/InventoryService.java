@@ -132,6 +132,6 @@ public class InventoryService {
 
     private void checkCurrentValidation(Event event) {
         if(orderInventoryRepository.existsByOrderIdAndTransactionId(event.getOrderId(), event.getTransactionId()))
-            throw new ValidationException("OrderInventory não encontrado com OrderId e TransactionId informado.");
+            throw new ValidationException("Há outra transactionId para esta validação.");
     }
 }
