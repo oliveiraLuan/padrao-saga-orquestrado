@@ -23,7 +23,7 @@ public final class SagaHandler {
 
             { INVENTORY_SERVICE, ROLLBACK_PENDING, INVENTORY_FAIL },
             { INVENTORY_SERVICE, FAIL, PAYMENT_FAIL },
-            { INVENTORY_SERVICE, SUCCESS, FINISH_SUCCESS },
+            { INVENTORY_SERVICE, SUCCESS, FINISH_SUCCESS }
     };
 
     public final static int EVENT_SOURCE_INDEX = 0;
