@@ -1,6 +1,7 @@
 package com.luandeoliveira.orchestrator_service.core.consumer;
 
 
+import com.luandeoliveira.orchestrator_service.core.service.OrchestratorService;
 import com.luandeoliveira.orchestrator_service.core.utils.JsonUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class SagaOrchestratorConsumer {
 
     private final JsonUtil jsonUtil;
+    private final OrchestratorService orchestratorService;
 
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -21,7 +23,7 @@ public class SagaOrchestratorConsumer {
     public void consumeEventStartSaga(String payload){
         log.info("Consumindo evento do tópico start-saga com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        orchestratorService.startSaga(event);
     }
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -30,7 +32,7 @@ public class SagaOrchestratorConsumer {
     public void consumeEventFinishSuccess(String payload){
         log.info("Consumindo evento do tópico finish-success com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        orchestratorService.finishSuccessSaga(event);
     }
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -39,7 +41,7 @@ public class SagaOrchestratorConsumer {
     public void consumeEventFinishFail(String payload){
         log.info("Consumindo evento do tópico finish-fail com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        orchestratorService.finishFailedSaga(event);
     }
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -48,6 +50,6 @@ public class SagaOrchestratorConsumer {
     public void consumeEventOrchestrator(String payload){
         log.info("Consumindo evento do tópico orchestrator com payload: {}", payload);
         var event = jsonUtil.toEvent(payload);
-        log.info(event.toString());
+        orchestratorService.continueSaga(event);
     }
 }
