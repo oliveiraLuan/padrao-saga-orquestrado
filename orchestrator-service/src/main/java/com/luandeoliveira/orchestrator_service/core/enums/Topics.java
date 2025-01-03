@@ -15,11 +15,11 @@ public enum Topics {
     PRODUCT_VALIDATION_SUCCESS("product-validation-success"),
     PRODUCT_VALIDATION_FAIL("product-validation-fail"),
 
-    PAYMENT_SUCCESS("payment-sucess"),
+    PAYMENT_SUCCESS("payment-success"),
     PAYMENT_FAIL("payment-fail"),
 
     INVENTORY_SUCCESS("inventory-success"),
-    INVENTORY_FAIL("inventory_fail");
+    INVENTORY_FAIL("inventory-fail");
 
 
     private String topic;
